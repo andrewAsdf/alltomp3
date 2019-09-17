@@ -3,7 +3,7 @@ const ffmpeg = require('fluent-ffmpeg');
 const path = require('path');
 const fs = require('fs-extra');
 const EventEmitter = require('events');
-const request = require('request-promise');
+const request = require('request-promise-native');
 const requestNoPromise = require('request');
 const _ = require('lodash');
 const acoustid = require('acoustid');
@@ -13,7 +13,6 @@ eyed3.metaHook = (m) => m;
 const levenshtein = require('fast-levenshtein');
 const randomstring = require('randomstring');
 const cheerio = require('cheerio');
-const Promise = require('bluebird');
 const sharp = require('sharp');
 const smartcrop = require('smartcrop-sharp');
 const lcs = require('longest-common-substring');
@@ -68,7 +67,7 @@ at3.setFfmpegPaths = (ffmpegPath, ffprobePath) => {
 * @param artistName string
 * @return Promise
 */
-at3.findLyrics = (title, artistName) => {
+at3.findLyrics = async (title, artistName) => {
   let promises = [];
 
   const textln = (html) => {
@@ -200,9 +199,15 @@ at3.findLyrics = (title, artistName) => {
   promises.push(reqLyricsMania3);
   promises.push(reqSweetLyrics);
 
-  return Promise.any(promises).then((lyrics) => {
-    return lyrics;
-  });
+  for (const lyrics of promises) {
+    try {
+      return await lyrics;
+    } catch (err) {
+      // do nothing, try the next one
+    }
+  }
+
+  return undefined;
 };
 
 /**
@@ -1534,7 +1539,9 @@ at3.downloadTrack = (track, outputFolder, callback, v) => {
     }
     if (results.length === 0) {
       progressEmitter.emit('error', new Error("Cannot find any video matching"));
-      return callback(null, "Cannot find any video matching");
+      if (callback) {
+        callback(null, "Cannot find any video matching");
+      }
     }
     let i = 0;
     progressEmitter.emit('search-end');
@@ -1589,7 +1596,9 @@ at3.downloadTrack = (track, outputFolder, callback, v) => {
     dlNext();
   }).catch(() => {
     progressEmitter.emit('error', new Error("Cannot find any video matching"));
-    return callback(null, "Cannot find any video matching");
+    if (callback) {
+      callback(null, "Cannot find any video matching");
+    }
   });
 
   progressEmitter.on('abort', () => {

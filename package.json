@@ -30,7 +30,6 @@
   "homepage": "https://github.com/AllToMP3/alltomp3#readme",
   "dependencies": {
     "acoustid": "^1.2.1",
-    "bluebird": "^3.5.2",
     "chai": "^3.5.0",
     "cheerio": "^0.20.0",
     "eyed3": "git+https://github.com/AllToMP3/node-eyed3.git#b545986",
@@ -41,7 +40,7 @@
     "longest-common-substring": "^0.0.1",
     "randomstring": "^1.1.5",
     "request": "^2.88.0",
-    "request-promise": "^2.0.1",
+    "request-promise-native": "^1.0.7",
     "sharp": "^0.20.8",
     "smartcrop-sharp": "git+https://github.com/AllToMP3/smartcrop-sharp.git#9d65314",
     "youtube-dl": "git+https://github.com/AllToMP3/node-youtube-dl.git#0f931a4"
